@@ -2,12 +2,16 @@
 import os
 import random
 import sys
+import math
 
 # Declaring Globals here
 n = 32
 m = n
 num_resources = 4
 max_iterations = 400
+
+potential ='delta'
+g = 1.7
 
 p_max = 1
 p_min = 0
@@ -39,7 +43,6 @@ for i in range(0, n):
 class Particles:
     def __init__(self):
         self.pos = [0 for x in range(0, n)]
-        self.vel = [0 for x in range(0, n)]
         self.best_pos = [0 for x in range(0, n)]
         self.best_cost = sys.maxint
 
@@ -62,7 +65,7 @@ particles = [Particles() for x in range(0, m)]
 def initialize_particles():
     for i in range(0, m):
         particles[i].pos = [random.uniform(p_min, p_max) for x in range(0, n)]
-        particles[i].vel = [random.uniform(v_min, v_max) for x in range(0, n)]
+        # particles[i].vel = [random.uniform(v_min, v_max) for x in range(0, n)]
         particles[i].best_pos = particles[i].pos
         particles[i].best_cost = sys.maxint
 
@@ -134,20 +137,25 @@ def execute_on_file(filename):
 
 def perform_ops_on_particle(i):
     global gBest_cost, gBest_pos
-    # Update particle's velocity and position
-    particles[i].vel = [w + v + h for w, v, h in
-                        zip(([x * wi for x in particles[i].vel]),
-                            ([c1 * random.uniform(0, 1) * z for z in
-                              [x - y for x, y in zip(particles[i].best_pos, particles[i].pos)]]),
-                            ([c2 * random.uniform(0, 1) * z for z in
-                              [x - y for x, y in zip(gBest_pos, particles[i].pos)]]))]
+    
+    # Equations for Quantum PSO
+    c1 = random.uniform(0,1)
+    c2 = random.uniform(0,1)
+    P = (w+u for w,u in zip( [ c1*x for x in particles[i].best_pos ],[c2*y for y in gBest_pos] ) )
+    P = [ x/(c1+c2) for x in P]
 
-    particles[i].vel = [min(x, v_max) for x in particles[i].vel]
-    particles[i].vel = [max(x, v_min) for x in particles[i].vel]
+    u = random.uniform(0,1)
+	
+    up=0
+    if potential=='delta' :
+	    up=[ 1/(2*g*math.log(2**0.5)) * z for z in [ x-y for x,y in zip(particles[i].pos,P) ] ]
+    elif potential=='harmonic' :
+	    up=[ 1 / (0.47694*g) * (math.log(1/u))**0.5 * z for z in [ x-y for x,y in zip(particles[i].pos,P) ] ]
 
-    particles[i].pos = [sum(x) for x in zip(particles[i].pos, particles[i].vel)]
-    particles[i].pos = [min(x, p_max) for x in particles[i].pos]
-    particles[i].pos = [max(x, p_min) for x in particles[i].pos]
+    if random.uniform(0,1)>0.5 :
+	    particles[i].pos=[x+y for x, y in zip(P,up) ]
+    else :
+	    particles[i].pos=[x+y for x,y in zip(P,up) ]
 
     # print "Particle no:%d" % i
     # print "Pos: ", particles[i].pos

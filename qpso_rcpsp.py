@@ -6,7 +6,7 @@ import math
 
 # Declaring Globals here
 n = 32
-m = n
+m = n-2
 num_resources = 4
 max_iterations = 400
 
@@ -62,7 +62,7 @@ particles = [Particles() for x in range(0, m)]
 
 # Globals end here -----
 
-def initialize_particles():
+def initialize_particles(): # O(n)
     for i in range(0, m):
         particles[i].pos = [random.uniform(p_min, p_max) for x in range(0, n)]
         # particles[i].vel = [random.uniform(v_min, v_max) for x in range(0, n)]
@@ -105,7 +105,8 @@ def read_file(filename):
             max_resources = map(int, line.split())
 
 
-def get_feasible_activities(finished, scheduled):
+
+def get_feasible_activities(finished, scheduled):   # O(n^2)
     feasible_activities = []
     for x in range(0, len(finished)):
         if finished[x]:
@@ -121,6 +122,15 @@ def get_feasible_activities(finished, scheduled):
     list_to_set = set(feasible_activities)
     return list(list_to_set)
 
+def get_feasible_activities2(finished, scheduled, completed_preds):   # O(n^2)
+    feasible_activities = []
+    for x in range(0,n):
+        if completed_preds[x] == len(pred_list[x]):
+            if not scheduled[x]:
+                feasible_activities.append(x)
+    return feasible_activities        
+  
+
 
 def execute_on_file(filename):
     read_file(filename)
@@ -133,6 +143,7 @@ def execute_on_file(filename):
         iterations += 1
     # print best_solution
     print gBest_cost
+    return gBest_cost
 
 
 def perform_ops_on_particle(i):
@@ -152,10 +163,10 @@ def perform_ops_on_particle(i):
     elif potential=='harmonic' :
 	    up=[ 1 / (0.47694*g) * (math.log(1/u))**0.5 * z for z in [ x-y for x,y in zip(particles[i].pos,P) ] ]
 
-    if random.uniform(0,1)>0.5 :
-	    particles[i].pos=[x+y for x, y in zip(P,up) ]
-    else :
-	    particles[i].pos=[x+y for x,y in zip(P,up) ]
+    # if random.uniform(0,1)>0.5 :
+	    particles[i].pos=[x+y for x, y in zip(P,up) ]      # What is this?
+    # else :
+	    # particles[i].pos=[x+y for x,y in zip(P,up) ]
 
     # print "Particle no:%d" % i
     # print "Pos: ", particles[i].pos
@@ -179,6 +190,7 @@ def perform_ops_on_particle(i):
 
     finished_activity = 0
     resources_left = max_resources
+    completed_preds = [0 for x in range(n)]
 
     while 1:
         # print "Activity %d finished." % finished_activity
@@ -186,12 +198,15 @@ def perform_ops_on_particle(i):
         if not finished[finished_activity]:
             resources_left = [x + y for x, y in zip(resources_left, res_req_list[finished_activity])]
             finished[finished_activity] = True
+            for x in succ_list[finished_activity]:
+                completed_preds[x] = completed_preds[x] + 1 
 
         if len(scheduleList) >= n:
             break
 
         # Finding all the activities for which precedence constraints are satisfied.
-        feasible_activities = get_feasible_activities(finished, scheduled)
+        # feasible_activities = get_feasible_activities(finished, scheduled)
+        feasible_activities = get_feasible_activities2(finished, scheduled,completed_preds)
 
         # Sort the feasible_activities in descending order
         def priority(activity_id):

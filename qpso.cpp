@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 
-#define MAX_ITERS 400
 #define NUM_RESOURCES 4
 #define P_MAX = 1
 #define P_MIN = 0
@@ -10,7 +9,8 @@ using namespace std;
 
 int N = 32;
 int M = N-2 ;
-float G = 1.7 ;
+float G = 1.4 ;
+int MAX_ITERS = 400; 
 
 string potential = "delta" ;
 vector<int> succ_list[123];
@@ -258,18 +258,21 @@ void read_file(char* filename){		//Tested: Working perfectly!
 int main(int argc, char **argv){
 	
 	/* Commandline Arguments format
-	*	./qpso j301_1.sm 32 
+	*	./qpso j301_1.sm 32 1.7 5000
 	*
 	*	note: G can also be added as CMD arg
 	*/
 
-	if(argc == 4){
+	if(argc >= 4){
 		N = atoi(argv[2]);
 		// cout<<"Received N = "<<N<<"M= "<<M<<"\n";
 		M = N-2 ;
 
 		G = atof(argv[3]) ;
 		// cout<<"G = "<<G<<"\n";
+		if(argc == 5){
+			MAX_ITERS = atoi(argv[4])/(N-2);
+		}
 
 		executeOnFile(argv[1]);
 

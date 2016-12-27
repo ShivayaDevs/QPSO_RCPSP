@@ -152,9 +152,10 @@ def perform_ops_on_particle(i):
     # Equations for Quantum PSO
     c1 = random.uniform(0,1)
     c2 = random.uniform(0,1)
-    P = (w+u for w,u in zip( [ c1*x for x in particles[i].best_pos ],[c2*y for y in gBest_pos] ) )
+    P = (w+u for w,u in zip( [ c1*x for x in particles[i].best_pos ],[c2*y for y in gBest_pos] ))
+    # print P
     P = [ x/(c1+c2) for x in P]
-
+    # print P
     u = random.uniform(0,1)
 	
     up=0

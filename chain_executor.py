@@ -9,7 +9,8 @@ import sys
 
 
 n = 32		# just change this and rest is automatic
-m = n
+prog.n = n
+m = n-2
 
 def reset_globals():
 	prog.pred_list = []
@@ -19,7 +20,7 @@ def reset_globals():
 	prog.max_resources = []
 
 	prog.n = n
-	prog.m = n 
+	prog.m = n-2 
 	# Global bests
 	prog.gBest_pos = [0 for x in range(0, n)]
 	prog.gBest_vel = [0 for x in range(0, n)]
@@ -34,14 +35,15 @@ def reset_globals():
 	prog.particles = [prog.Particles() for x in range(0, m)]
     
 if __name__ == '__main__':
+	reset_globals()
 	folder_name = 'j%d' % (n-2)
 	os.chdir(os.path.join("/home/yash/Desktop/Work/Projects/QPSOinRCPSP/Dataset/%s.sm"%folder_name))   
 
 	u = 1
-	while u<11:
+	while u<6:
 		l = 1
 		while l<11:
-			filename = "j30%d_%d.sm" % (u,l)
+			filename = "j%d%d_%d.sm" % (n-2,u,l)
 			print "Running on file: ", filename, " Time: ",
 			prog.execute_on_file(filename)
 			reset_globals()

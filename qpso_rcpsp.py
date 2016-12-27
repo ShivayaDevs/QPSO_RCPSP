@@ -8,7 +8,7 @@ import math
 n = 32
 m = n-2
 num_resources = 4
-max_iterations = 166
+max_iterations = 400
 
 potential ='delta'
 g = 1.7
@@ -105,6 +105,7 @@ def read_file(filename):
             max_resources = map(int, line.split())
 
 
+
 def get_feasible_activities(finished, scheduled):   # O(n^2)
     feasible_activities = []
     for x in range(0, len(finished)):
@@ -142,6 +143,7 @@ def execute_on_file(filename):
         iterations += 1
     # print best_solution
     print gBest_cost
+    return gBest_cost
 
 
 def perform_ops_on_particle(i):

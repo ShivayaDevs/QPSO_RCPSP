@@ -266,9 +266,9 @@ int main(int argc, char **argv){
 	if(argc >= 4){
 		N = atoi(argv[2]);
 		// cout<<"Received N = "<<N<<"M= "<<M<<"\n";
-		M = N-2 ;
+		// M = N-2 ;
 
-		G = atof(argv[3]) ;
+		M = atoi(argv[3]) ;
 		// cout<<"G = "<<G<<"\n";
 		if(argc == 5){
 			MAX_ITERS = atoi(argv[4])/(N-2);

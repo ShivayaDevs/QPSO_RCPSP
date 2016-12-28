@@ -6,11 +6,11 @@ import math
 
 # Declaring Globals here
 n = 32
-m = n-2
+m = 1
 num_resources = 4
-max_iterations = 400
+max_iterations = 40
 
-potential ='delta'
+potential ='harmonic'
 g = 1.7
 
 p_max = 1
@@ -141,7 +141,8 @@ def execute_on_file(filename):
             perform_ops_on_particle(i)
         best_solution.append(gBest_cost)
         iterations += 1
-    # print best_solution
+
+    print best_solution
     print gBest_cost
     return gBest_cost
 
@@ -277,4 +278,4 @@ def perform_ops_on_particle(i):
 
 if __name__ == '__main__':
     os.chdir(os.path.join("/home/yash/Desktop/Work/Projects/QPSOinRCPSP/Dataset/j30.sm"))
-    execute_on_file('j301_1.sm')
+    execute_on_file('j302_10.sm')

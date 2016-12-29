@@ -6,12 +6,12 @@ import math
 
 # Declaring Globals here
 n = 32
-m = 1
+m = 30
 num_resources = 4
-max_iterations = 40
+max_iterations = 100
 
-potential ='harmonic'
-g = 1.7
+potential ='delta'
+g = 0.8
 
 p_max = 1
 p_min = 0
@@ -66,6 +66,7 @@ def initialize_particles(): # O(n)
     for i in range(0, m):
         particles[i].pos = [random.uniform(p_min, p_max) for x in range(0, n)]
         # particles[i].vel = [random.uniform(v_min, v_max) for x in range(0, n)]
+       
         particles[i].best_pos = particles[i].pos
         particles[i].best_cost = sys.maxint
 
@@ -106,23 +107,7 @@ def read_file(filename):
 
 
 
-def get_feasible_activities(finished, scheduled):   # O(n^2)
-    feasible_activities = []
-    for x in range(0, len(finished)):
-        if finished[x]:
-            for succ in succ_list[x]:
-                flag = 0
-                for pred in pred_list[succ]:
-                    if not finished[pred]:
-                        flag = 1
-                if flag == 0:
-                    if not scheduled[succ]:
-                        feasible_activities.append(succ)
-    # Removing duplicates
-    list_to_set = set(feasible_activities)
-    return list(list_to_set)
-
-def get_feasible_activities2(finished, scheduled, completed_preds):   # O(n^2)
+def get_feasible_activities2(finished, scheduled, completed_preds):   # O(n)
     feasible_activities = []
     for x in range(0,n):
         if completed_preds[x] == len(pred_list[x]):
@@ -132,46 +117,100 @@ def get_feasible_activities2(finished, scheduled, completed_preds):   # O(n^2)
   
 
 
-def execute_on_file(filename):
+def execute_on_file(filename,g):
     read_file(filename)
     initialize_particles()
     iterations = 0
     while iterations < max_iterations:
-        for i in range(0, m):
-            perform_ops_on_particle(i)
+
+    		
+    	mbest= [0 for x in range(0,n) ]
+
+        for i in range(0,n) :
+            mbest[i] = 0
+            for j in range(0,m) :
+                mbest[i] = mbest[i] + particles[j].best_pos[i]
+
+
+
+
+    	# for i in range(0,m) :
+    		# mbest = [ x+y for x,y in zip(mbest,particles[i].best_pos) ]
+
+    	mbest = [x/m for x in mbest]		
+    	    
+    		
+    	for i in range(0,m) :
+    		perform_ops_on_particle(i,g,mbest)
+
         best_solution.append(gBest_cost)
         iterations += 1
-
-    print best_solution
+    		
+		
+            
+        
+    # print best_solution
     print gBest_cost
     return gBest_cost
 
 
-def perform_ops_on_particle(i):
+def perform_ops_on_particle(i,g,mbest):
     global gBest_cost, gBest_pos
     
     # Equations for Quantum PSO
     c1 = random.uniform(0,1)
     c2 = random.uniform(0,1)
-    P = (w+u for w,u in zip( [ c1*x for x in particles[i].best_pos ],[c2*y for y in gBest_pos] ))
-    # print P
+    P = (w+u for w,u in zip( [ c1*x for x in particles[i].best_pos ],[c2*y for y in gBest_pos] ) )
     P = [ x/(c1+c2) for x in P]
-    # print P
+
     u = random.uniform(0,1)
 	
     up=0
-    if potential=='delta' :
-	    up=[ 1/(2*g*math.log(2**0.5)) * z for z in [ x-y for x,y in zip(particles[i].pos,P) ] ]
-    elif potential=='harmonic' :
-	    up=[ 1 / (0.47694*g) * (math.log(1/u))**0.5 * z for z in [ x-y for x,y in zip(particles[i].pos,P) ] ]
+    
+    diff = [x-y for x,y in zip(mbest,particles[i].pos) ]
+    diff = [abs(x) for x in diff]
+
+
+    print "======Diff:\n\n\n",diff
+    temp = [g*x*math.log(1/u) for x in diff]
+    print "temp: "
+    print temp
+    print "\n"
+    if random.uniform(0,1) < 0.5 :
+		particles[i].pos = [ abs(x-y) for x,y in zip(P,temp)]
+    else :
+		particles[i].pos = [ x+y for x,y in zip(P,temp) ]
+
+
+    
+    
+    
+    #print "value of g: ",g
+    # if potential=='delta' :
+	    #up=[ 1/(2*g*math.log(2**0.5)) * z for z in [ x-y for x,y in zip(particles[i].pos,P) ] ]
+    #elif potential=='harmonic' :
+	    #up=[ 1 / (0.47694*g) * (math.log(1/u))**0.5 * z for z in [ x-y for x,y in zip(particles[i].pos,P) ] ]
+	    
+    # print "p: ", P
+    # print "up: ", up
+	
+	
 
     # if random.uniform(0,1)>0.5 :
-	    particles[i].pos=[x+y for x, y in zip(P,up) ]      # What is this?
+	    # particles[i].pos=[x+y for x, y in zip(P,up) ]      # What is this?
     # else :
-	    # particles[i].pos=[x+y for x,y in zip(P,up) ]
+	    # particles[i].pos=[x-y for x,y in zip(P,up) ]
+	    
+
+    print "x+y: "
+    print [x+y for x,y in zip(P,temp)]
+	
+	
+	
 
     # print "Particle no:%d" % i
-    # print "Pos: ", particles[i].pos
+    print "Pos: ", particles[i].pos
+    print "\n"
     # print "Vel: ", particles[i].vel
 
     # """ Evaluating the schedule """
@@ -263,19 +302,18 @@ def perform_ops_on_particle(i):
     for activity in scheduleList:
         # print activity.activity_id, activity.start_time
         cost = max(cost, activity.f_time)
-    # print "Total cost: ", cost
+    print "Total cost: ", cost
 
     # Update local best
     if cost < particles[i].best_cost:
         particles[i].best_pos = particles[i].pos
-        particles[i].cost = cost
+        particles[i].best_cost = cost
 
     # update global best
     if cost < gBest_cost:
         gBest_pos = particles[i].pos
         gBest_cost = cost
 
-
 if __name__ == '__main__':
-    os.chdir(os.path.join("/home/yash/Desktop/Work/Projects/QPSOinRCPSP/Dataset/j30.sm"))
-    execute_on_file('j302_10.sm')
+    execute_on_file("../Dataset/j30.sm/j302_10.sm", .8)
+

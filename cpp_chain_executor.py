@@ -5,8 +5,8 @@ import commands
 #	Python scipt for automatic execution of QPSO program
 #	on multiple files.
 
-n = 62		# just change this and rest is automatic
-M = 1
+n = 32		# just change this and rest is automatic
+M = 50
 num_schedules = [5000] # List of total schedules to run on
 
 
@@ -20,8 +20,8 @@ def parseOptimals(filename):
             optimals.append(numbers[2])
         i = i+1    
 
-def getAnswerByRunningOn(foldername, filename, schedules):
-	cmd = "./qpso ../Dataset/%s/%s %d %d %d" % (foldername, filename,n,M,schedules) 
+def getAnswerByRunningOn(foldername, filename, schedules, G=0.838):
+	cmd = "./qpso_fnav ../Dataset/%s/%s %d %d %d %f" % (foldername, filename,n,M,schedules,G) 
 	(status, output) = commands.getstatusoutput(cmd)	# python stalls during this process and waits for cpp completion.
 	if status: 					#non zero value
 		print "There was an error while executing file: ", filename
@@ -43,10 +43,12 @@ if __name__ == '__main__':
 	for i in num_schedules:
 		print "==============================================="
 		print "Running for Total schedules = ",i 
+		# for j in range(0,5):
+			# G = -j*0.002 + 0.84 
 		sd = 0
 		counter = 0
 		u = 1
-		while u<3:
+		while u<49:
 			l = 1
 			while l<11:
 				filename = "j%d%d_%d.sm" % (n-2,u,l)
@@ -83,5 +85,5 @@ if __name__ == '__main__':
 			print sd 
 		print "Optimally solved: ", counter 
 		num_files = ((u-1)*(l-1)) ;
-		print "FOR Iterations = ",i ," final sd/", num_files, "= ",sd/num_files
-		
+		print "FOR Iterations = ",i , " final sd/", num_files, "= ", sd/num_files
+			

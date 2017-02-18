@@ -6,9 +6,9 @@ import math
 
 # Declaring Globals here
 n = 32
-m = 30
+m = 15000
 num_resources = 4
-max_iterations = 100
+max_iterations = 1
 
 potential ='delta'
 g = 0.8
@@ -314,6 +314,9 @@ def perform_ops_on_particle(i,g,mbest):
         gBest_pos = particles[i].pos
         gBest_cost = cost
 
+    si = random.uniform(0,1)
+    particles[i].best_pos = [ si*x + (1-si)*y for x,y in zip(particles[i].best_pos, gBest_pos)]
+
 if __name__ == '__main__':
-    execute_on_file("../Dataset/j30.sm/j302_10.sm", .8)
+    execute_on_file("../Dataset/j30.sm/j302_10.sm", .51)
 

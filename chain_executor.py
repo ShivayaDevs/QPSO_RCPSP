@@ -34,7 +34,7 @@ def reset_globals():
 	    prog.duration.append(0)
 	prog.particles = [prog.Particles() for x in range(0, m)]
     
-
+#list of optimals
 optimals = []
 def parseOptimals(filename):
     f = open(filename)
@@ -50,6 +50,7 @@ def parseOptimals(filename):
 
 if __name__ == '__main__':
 
+	#parsing the given optimal values
 	parseOptimals("j30opt.sm")
 	print optimals
 	reset_globals()
